@@ -114,6 +114,44 @@ public func whenAll<T>(_ tasks: [Task<T, Error>]) async throws -> [T] {
   })
 }
 
+
+public func whenAll(_ tasks: [() -> Task<Void, Error>]) async throws {
+  try await withThrowingTaskGroup(of: Void.self) { group in
+    for task in tasks {
+      _ = group.addTaskUnlessCancelled {
+        try await task().value
+      }
+    }
+    for try await _ in group {
+      // NO-OP
+    }
+  }
+}
+
+public func whenAll(_ tasks: [() -> Task<Void, Never>]) async {
+  await withTaskGroup(of: Void.self) { group in
+    for task in tasks {
+      _ = group.addTaskUnlessCancelled {
+        await task().value
+      }
+    }
+    for await _ in group {
+      // NO-OP
+    }
+  }
+}
+
+public func whenAll<T>(_ tasks: [() -> Task<T, Never>]) async -> [T] {
+  await withTaskGroup(of: [T].self) { group in
+    for task in tasks {
+      _ = group.addTaskUnlessCancelled {
+        return [ await task().value]
+      }
+    }
+    return await group.reduce([], +)
+  }
+}
+
 public extension Array {
   func whenAny<T, D, R>(initial: D, done: (inout D, T) async -> R?) async throws -> R? where Element == Task<T?, Error> {
     return try await AsyncAwaitHelpers.whenAny(self, initial: initial, done: done)
