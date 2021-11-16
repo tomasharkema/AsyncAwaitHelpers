@@ -114,7 +114,6 @@ public func whenAll<T>(_ tasks: [Task<T, Error>]) async throws -> [T] {
   })
 }
 
-
 public func whenAll(_ tasks: [() -> Task<Void, Error>]) async throws {
   try await withThrowingTaskGroup(of: Void.self) { group in
     for task in tasks {
@@ -150,6 +149,16 @@ public func whenAll<T>(_ tasks: [() -> Task<T, Never>]) async -> [T] {
     }
     return await group.reduce([], +)
   }
+}
+
+public func whenAll(_ tasks: [() async -> Void]) async {
+  return await whenAll(tasks.map { el in
+    return {
+      Task {
+        await el()
+      }
+    }
+  })
 }
 
 public extension Array {
