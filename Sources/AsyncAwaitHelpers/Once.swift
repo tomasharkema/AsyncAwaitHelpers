@@ -78,7 +78,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceKeepOriginal(key: Key, keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async throws -> Value) async
+  public func onceKeepOriginal(key: Key, keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async throws -> Value) async
   -> Task<Value, Error> where Error == Swift.Error
   {
     await onceKeepOriginal(key: key, keepInCache: keepInCache, Task {
@@ -87,14 +87,14 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceKeepOriginal(keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async throws -> Value) async
+  public func onceKeepOriginal(keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async throws -> Value) async
   -> Task<Value, Error> where Error == Swift.Error, Key == NoKey
   {
     return await onceKeepOriginal(key: NoKey(), keepInCache: keepInCache, handler)
   }
 
   @discardableResult
-  public nonisolated func onceKeepOriginal(key: Key, keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async -> Value) async
+  public func onceKeepOriginal(key: Key, keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async -> Value) async
   -> Task<Value, Error> where Error == Never
   {
     await onceKeepOriginal(key: key, keepInCache: keepInCache, Task {
@@ -103,7 +103,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceKeepOriginal(keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async -> Value) async
+  public func onceKeepOriginal(keepInCache: TimeInterval? = nil, _ handler: @escaping @Sendable () async -> Value) async
   -> Task<Value, Error> where Error == Never, Key == NoKey
   {
     await onceKeepOriginal(key: NoKey(), keepInCache: keepInCache, handler)
@@ -114,13 +114,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
     await data.cancel(key: key)
 
     let newTask = handler()
-
-    Task.detached(priority: .background) {
-      await self.data.insert(key: key, value: (Date(), newTask))
-      _ = await newTask.result
-      await self.data.delete(key: key)
-    }
-
+    await self.data.insert(key: key, value: (Date(), newTask))
 
     return newTask
   }
@@ -131,7 +125,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceCancelOriginal(
+  public func onceCancelOriginal(
     key: Key, _ handler: @escaping @Sendable () async throws -> Value
   ) async -> Task<Value, Error> where Error == Swift.Error
   {
@@ -141,7 +135,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceCancelOriginal(
+  public func onceCancelOriginal(
     _ handler: @escaping @Sendable () async throws -> Value
   ) async -> Task<Value, Error> where Error == Swift.Error, Key == NoKey
   {
@@ -149,7 +143,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceCancelOriginal(key: Key, _ handler: @escaping @Sendable () async -> Value) async
+  public func onceCancelOriginal(key: Key, _ handler: @escaping @Sendable () async -> Value) async
   -> Task<Value, Error> where Error == Never
   {
     await onceCancelOriginal(key: key, Task {
@@ -159,7 +153,7 @@ public class Once<Key: Hashable, Value, Error: Swift.Error> {
   }
 
   @discardableResult
-  public nonisolated func onceCancelOriginal(_ handler: @escaping @Sendable () async -> Value) async
+  public func onceCancelOriginal(_ handler: @escaping @Sendable () async -> Value) async
   -> Task<Value, Error> where Error == Never, Key == NoKey
   {
     await onceCancelOriginal(key: NoKey(), handler)
@@ -174,7 +168,7 @@ extension Once {
     await data.cancel(key: key)
   }
 
-  public nonisolated func cancelAllAndForget() {
+  public func cancelAllAndForget() {
     Task {
       await cancelAll()
     }
