@@ -86,7 +86,11 @@ public func whenBoth<A, B>(
 // MARK: whenAll
 
 public func whenAll<T>(_ tasks: [() -> Task<T, Error>]) async throws -> [T] {
-  try await withThrowingTaskGroup(of: [T].self) { group in
+  if tasks.isEmpty {
+    return []
+  }
+
+  return try await withThrowingTaskGroup(of: [T].self) { group in
     for task in tasks {
       _ = group.addTaskUnlessCancelled {
         return [try await task().value]
@@ -115,6 +119,9 @@ public func whenAll<T>(_ tasks: [Task<T, Error>]) async throws -> [T] {
 }
 
 public func whenAll(_ tasks: [() -> Task<Void, Error>]) async throws {
+  if tasks.isEmpty {
+    return
+  }
   try await withThrowingTaskGroup(of: Void.self) { group in
     for task in tasks {
       _ = group.addTaskUnlessCancelled {
@@ -128,6 +135,9 @@ public func whenAll(_ tasks: [() -> Task<Void, Error>]) async throws {
 }
 
 public func whenAll(_ tasks: [() -> Task<Void, Never>]) async {
+  if tasks.isEmpty {
+    return
+  }
   await withTaskGroup(of: Void.self) { group in
     for task in tasks {
       _ = group.addTaskUnlessCancelled {
@@ -141,7 +151,12 @@ public func whenAll(_ tasks: [() -> Task<Void, Never>]) async {
 }
 
 public func whenAll<T>(_ tasks: [() -> Task<T, Never>]) async -> [T] {
-  await withTaskGroup(of: [T].self) { group in
+
+  if tasks.isEmpty {
+    return []
+  }
+
+  return await withTaskGroup(of: [T].self) { group in
     for task in tasks {
       _ = group.addTaskUnlessCancelled {
         return [ await task().value]
