@@ -183,7 +183,7 @@ extension Once {
   }
 }
 
-#if swift(<=5.6)
+#if swift(<5.7)
 
 // MARK: onceOnlyIfNeeded
 
