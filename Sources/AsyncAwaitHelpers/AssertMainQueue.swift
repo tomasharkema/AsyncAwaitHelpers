@@ -5,6 +5,8 @@
 //  Created by Tomas Harkema on 24/11/2020.
 //
 
+#if canImport(Foundation)
+
 import Foundation
 
 @inlinable public func assertMainQueue() {
@@ -22,3 +24,5 @@ import Foundation
   }
 #endif
 }
+
+#endif

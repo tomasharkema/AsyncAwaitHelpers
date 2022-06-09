@@ -183,6 +183,8 @@ extension Once {
   }
 }
 
+#if swift(<=5.6)
+
 // MARK: onceOnlyIfNeeded
 
 extension Once {
@@ -218,3 +220,5 @@ extension Once {
     })
   }
 }
+
+#endif
